@@ -1,0 +1,70 @@
+/* Оформление содержимого СМС */
+
+.parsed_sms_content {
+  font-family: sans-serif;
+  font-style: normal;
+  font-size: 14pt;
+}
+
+/* Офрмление таблицы с Мета данными */
+
+table.meta_table {
+  table-layout: fixed;
+  width: 35%;
+  border-collapse: collapse;
+  border: 3px solid black;
+}
+
+thead.meta_table th:nth-child(1) {
+  width: 55%;
+  padding: 10px;
+  letter-spacing: 1px;
+}
+
+thead.meta_table th {
+  letter-spacing: 1px;
+}
+
+tbody.meta_table th {
+  text-align: center;
+  padding: 10px;
+}
+
+tbody.meta_table td {
+  text-align: center;
+  padding: 10px;
+}
+
+thead.meta_table {
+  /*background:;*/
+  color: black;
+  text-shadow: 1px 1px 1px black;
+}
+
+thead.meta_table th {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+  border: 3px solid black;
+}
+/*
+tbody.meta_table tr:nth-child(odd) {
+  background-color: #ff33cc;
+}
+
+tbody.meta_table tr:nth-child(even) {
+  background-color: #e495e4;
+}
+
+table.meta_table {
+  background-color: #ff33cc;
+}
+*/
+caption.meta_table {
+  font-family: sans-serif, cursive;
+  padding: 10px;
+  font-style: bold;
+  caption-side: top;
+  color: black;
+  text-align: center;
+  letter-spacing: 1px;
+}
+

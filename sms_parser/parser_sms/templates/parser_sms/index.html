@@ -1,3 +1,65 @@
+{% extends 'layout/base.html' %}
+
+<!--
 {% include 'layout/header.html' %}
 {% include 'layout/sms_input_content.html' %}
 {% include 'layout/footer.html' %}
+-->
+
+
+{% block content %}
+<ul class="list-articles">
+	<!--
+	{% comment %}
+		{% show_posts cat_selected %}
+	{% endcomment %}
+	-->
+	{% for p_sms in processed_sms %}
+    <li><div class="article-panel">
+		<p class="last">Дата загрузки: {{p_sms.time_created|date:"d-m-Y H:i:s"}}</p>
+		</div>
+		<!-- <p class="sms-content-list">{{p_sms.content}}</p -->
+
+		{% if p_sms.parsedmetadata.pk %}
+			<p class="sms-content-list"><a href="{% url 'parsed_sms' p_sms.parsedmetadata.pk %}">{{ p_sms.content }}</a></p>
+		{% else %}
+			<p class="sms-content-list">{{ p_sms.content }}</p>
+		{% endif %}
+
+		<!--
+		{% comment %}
+		<div class="clear"></div>
+	 		<p class="link-read-post"><a href="{% url 'parsed_sms' p_sms.parsedmetadata.pk %}">Обработанные данные</a></p>
+		{% if p_sms.parsedmetadata.pk %}
+	 		<p class="link-read-post"><a href="{% url 'parsed_sms' p_sms.parsedmetadata.pk %}">Обработанные данные</a></p>
+		{% endif %}
+		<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
+		{% endcomment %}
+		-->
+    </li>
+{% endfor %}
+</ul>
+	{% if page_obj.has_other_pages %}
+		<nav class="list-pages">
+    		<ul>
+				{% if page_obj.has_previous %}
+					<li class="page-num"><a href="?page={{ page_obj.previous_page_number }}">&lt</a></li>
+				{% endif %}
+
+        		{% for pg_num in paginator.page_range %}
+					{% if page_obj.number == pg_num %}
+            			<li class="page-num page-num-selected">{{ pg_num }}</li>
+					{% elif pg_num >= page_obj.number|add:-2 and pg_num <= page_obj.number|add:2 %}
+					<li class="page-num">
+                		<a href="?page={{ pg_num }}">{{ pg_num }}</a>
+            		</li>
+					{% endif %}
+        		{% endfor %}
+
+				{% if page_obj.has_next %}
+					<li class="page-num"><a href="?page={{ page_obj.next_page_number }}">&gt</a></li>
+				{% endif %}
+    		</ul>
+		</nav>
+	{% endif %}
+{% endblock %}

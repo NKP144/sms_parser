@@ -1,0 +1,32 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% load parser_sms_tags %}
+
+{% block content %}
+    <link type="text/css" href="{% static 'parser_sms/css/parsed_sms_styles.css' %}" rel="stylesheet" />
+    <h2>{% get_verbose_field_name parsed_sms "sms" %}</h2>
+    <p class="parsed_sms_content">{{ parsed_sms.sms.content }}</p>
+
+    <table class="meta_table" border="1">
+        <caption class="meta_table">Мета данные из СМС</caption>
+        <thead class="meta_table">
+            <tr>
+                <th scope="col">Параметр</th>
+                <th scope="col">Значение</th>
+            </tr>
+        </thead>
+        <tbody class="meta_table">
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_generation_time" %}</th><td>{{ parsed_sms.sms_generation_time }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_hi" %}</th><td>{{ parsed_sms.vbat_hi }} мВ</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_low" %}</th><td>{{ parsed_sms.vbat_low }} мВ</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "modem_work_time" %}</th><td>{{ parsed_sms.modem_work_time }} мин.</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "range_counter" %}</th><td>{{ parsed_sms.range_counter }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_attempt_counter" %}</th><td>{{ parsed_sms.sms_attempt_counter }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_confirmed_counter" %}</th><td>{{ parsed_sms.sms_confirmed_counter }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "longitude" %}</th><td>{{ parsed_sms.longitude }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "latitude" %}</th><td>{{ parsed_sms.latitude }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "from_accel" %}</th><td>{{ parsed_sms.from_accel }}</td></tr>
+            <tr><th scope="row">{% get_verbose_field_name parsed_sms "work_from_LSI" %}</th><td>{{ parsed_sms.work_from_LSI }}</td></tr>
+        </tbody>
+    </table>
+{% endblock %}
