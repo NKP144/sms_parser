@@ -7,26 +7,65 @@
     <h2>{% get_verbose_field_name parsed_sms "sms" %}</h2>
     <p class="parsed_sms_content">{{ parsed_sms.sms.content }}</p>
 
-    <table class="meta_table" border="1">
-        <caption class="meta_table">Мета данные из СМС</caption>
-        <thead class="meta_table">
-            <tr>
-                <th scope="col">Параметр</th>
-                <th scope="col">Значение</th>
-            </tr>
-        </thead>
-        <tbody class="meta_table">
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_generation_time" %}</th><td>{{ parsed_sms.sms_generation_time }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_hi" %}</th><td>{{ parsed_sms.vbat_hi }} мВ</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_low" %}</th><td>{{ parsed_sms.vbat_low }} мВ</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "modem_work_time" %}</th><td>{{ parsed_sms.modem_work_time }} мин.</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "range_counter" %}</th><td>{{ parsed_sms.range_counter }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_attempt_counter" %}</th><td>{{ parsed_sms.sms_attempt_counter }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_confirmed_counter" %}</th><td>{{ parsed_sms.sms_confirmed_counter }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "longitude" %}</th><td>{{ parsed_sms.longitude }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "latitude" %}</th><td>{{ parsed_sms.latitude }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "from_accel" %}</th><td>{{ parsed_sms.from_accel }}</td></tr>
-            <tr><th scope="row">{% get_verbose_field_name parsed_sms "work_from_LSI" %}</th><td>{{ parsed_sms.work_from_LSI }}</td></tr>
-        </tbody>
-    </table>
+<table class="grid">
+    <tr>
+    <td>
+        <div class="left_meta_data">
+            <table class="meta_table" border="1">
+                <caption class="meta_table">Мета данные из СМС</caption>
+                <thead class="meta_table">
+                    <tr>
+                        <th scope="col">Параметр</th>
+                        <th scope="col">Значение</th>
+                    </tr>
+                </thead>
+                <tbody class="meta_table">
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_generation_time" %}</th><td>{{ parsed_sms.sms_generation_time }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_hi" %}</th><td>{{ parsed_sms.vbat_hi }} мВ</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "vbat_low" %}</th><td>{{ parsed_sms.vbat_low }} мВ</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "modem_work_time" %}</th><td>{{ parsed_sms.modem_work_time }} мин.</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "range_counter" %}</th><td>{{ parsed_sms.range_counter }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_attempt_counter" %}</th><td>{{ parsed_sms.sms_attempt_counter }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "sms_confirmed_counter" %}</th><td>{{ parsed_sms.sms_confirmed_counter }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "longitude" %}</th><td>{{ parsed_sms.longitude }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "latitude" %}</th><td>{{ parsed_sms.latitude }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "from_accel" %}</th><td>{{ parsed_sms.from_accel }}</td></tr>
+                    <tr><th scope="row">{% get_verbose_field_name parsed_sms "work_from_LSI" %}</th><td>{{ parsed_sms.work_from_LSI }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </td>
+    <td>
+        <div class="ya_map">
+            <iframe class="ya_map_fr", src="https://yandex.ru/map-widget/v1/?pt={{ parsed_sms.longitude|formatted_float }},{{ parsed_sms.latitude|formatted_float }}&z=12&l=map"></iframe>
+        </div>
+    </td>
+    </tr>
+    <tr>
+    <td>
+        <div class="left_measure_data">
+            <table class="measure_table" border="1">
+                <caption class="measure_table">Данные с измерениями</caption>
+                <thead class="measure_table">
+                    <tr>
+                        <th scope="col">Время измерения</th>
+                        <th scope="col">Дальномер, мВ</th>
+                        <th scope="col">Температура, °C</th>
+                    </tr>
+                </thead>
+                <tbody class="measure_table">
+                    {% for measure in measure_objects %}
+                        <tr><td scope="row">{{ measure.measure_time }}</td><td>{{ measure.range }}</td><td>{{ measure.temperature }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </td>
+    <td>
+        <div class="temp_range_chart">
+            <img class="chart_img", src='data:image/png;base64,{{ chart }}'>
+        </div>
+    </td>
+    </tr>
+</table>
 {% endblock %}

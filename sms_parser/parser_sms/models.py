@@ -40,3 +40,19 @@ class ParsedMetaData(models.Model):
         ordering = ['id']
 
 
+class ParsedMeasureData(models.Model):
+    """ Модель хранить данные об измерениях из обработанной СМС"""
+    measure_time = models.DateTimeField(verbose_name="Время измерения")
+    temperature = models.SmallIntegerField(verbose_name="Температура")
+    range = models.SmallIntegerField(verbose_name='Дальномер')
+    sms = models.ForeignKey(SMSData, on_delete=models.CASCADE, verbose_name="Связанное СМС")
+
+    # def get_absolute_url(self):
+    #     return reverse('parsed_sms', kwargs={'metadata_id': self.pk})
+
+    class Meta:
+        verbose_name = "Измерение из СМС"
+        verbose_name_plural = "Измерения из СМС"
+        ordering = ['-sms_id', 'measure_time']
+
+

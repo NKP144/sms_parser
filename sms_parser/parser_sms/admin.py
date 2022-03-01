@@ -11,8 +11,13 @@ class SMSDataAdmin(admin.ModelAdmin):
 
 class ParsedMetaDataAdmin(admin.ModelAdmin):
     """Класс-редактор для задания параметров представления модели"""
-    list_display = ('sms_generation_time',)  # Поля, которые выводятся в списке записей
+    list_display = ('sms_generation_time', 'sms')  # Поля, которые выводятся в списке записей
+
+
+class ParsedMeasureAdmin(admin.ModelAdmin):
+    list_display = ('measure_time', 'temperature', 'temperature', 'range', 'sms')  # Поля, которые выводятся в списке записей
 
 
 admin.site.register(SMSData, SMSDataAdmin)
 admin.site.register(ParsedMetaData, ParsedMetaDataAdmin)
+admin.site.register(ParsedMeasureData, ParsedMeasureAdmin)

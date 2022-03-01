@@ -25,9 +25,9 @@ class AddSMSForm(forms.ModelForm):
 
     def process_sms_data(self):
         """ Обработка данных из СМС """
-        print(self.cleaned_data['content'])
+        # print(self.cleaned_data['content'])
         decode_bytes = base64.b64decode(self.cleaned_data['content'])  # Получаем массив байт из base64
-        print(''.join('{:02x}'.format(x) for x in decode_bytes))
+        # print(''.join('{:02x}'.format(x) for x in decode_bytes))
         last_sms = SMSData.objects.first()  #  После изменения сортировки по убыванию времени,
                                             #  необходимо применить first - это и будет последняя СМС
         # last_sms = SMSData.objects.last()
@@ -35,60 +35,81 @@ class AddSMSForm(forms.ModelForm):
         sms_meta_data = ParsedMetaData()
         sms_meta_data.sms = last_sms
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 32, 0)  # Время отправления СМС
-        print(datetime.utcfromtimestamp(data_from_buf).strftime('%Y-%m-%d %H:%M:%S'))
+        # print(datetime.utcfromtimestamp(data_from_buf).strftime('%Y-%m-%d %H:%M:%S'))
         # sms_meta_data.sms_generation_time = data_from_buf
         sms_meta_data.sms_generation_time = datetime.utcfromtimestamp(data_from_buf).strftime('%Y-%m-%d %H:%M:%S')
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 12, 32)  # Напряжение под нагрузкой
         data_from_buf += 4096
         sms_meta_data.vbat_hi = data_from_buf
-        print(data_from_buf)
+        # print(data_from_buf)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 12, 44)  # Время работы модема
         sms_meta_data.modem_work_time = data_from_buf
-        print(data_from_buf)
+        # print(data_from_buf)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 11, 56)  # Счетчик включений дальномера / 10
         data_from_buf *= 10
         sms_meta_data.range_counter = data_from_buf
-        print(data_from_buf)
+        # print(data_from_buf)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 10, 67)  # Счетчик попыток отправки СМС / 10
         data_from_buf *= 10
         sms_meta_data.sms_attempt_counter = data_from_buf
-        print(data_from_buf)
+        # print(data_from_buf)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 11, 77)  # Счетчик подтвержденных СМС
         sms_meta_data.sms_confirmed_counter = data_from_buf
-        print(data_from_buf)
+        # print(data_from_buf)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 22, 88)  # Долгота * 10000 СМС
         if (data_from_buf & 0x200000) == 0x200000:  # Отрицательное значение
             data_from_buf &= ~0x200000
             data_from_buf = 0 - data_from_buf
-        print(float(data_from_buf/10000))
+        # print(float(data_from_buf/10000))
         sms_meta_data.longitude = float(data_from_buf/10000)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 21, 110)  # Широта * 10000 СМС
         if (data_from_buf & 0x100000) == 0x100000:  # Отрицательное значение
             data_from_buf &= ~0x100000
             data_from_buf = 0 - data_from_buf
-        print(float(data_from_buf/10000))
+        # print(float(data_from_buf/10000))
         sms_meta_data.latitude = float(data_from_buf / 10000)
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 12, 131)  # Напряжение без нагрузки
         data_from_buf += 4096
-        print(data_from_buf)
+        # print(data_from_buf)
         sms_meta_data.vbat_low = data_from_buf
 
         data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 3, 143)  # Reserved. From Accel, Work from LSI
-        if (data_from_buf & 0x001) == 0x001:  # СМС от акселерометра
-            print('from_accel = 1')
-        if (data_from_buf & 0x002) == 0x002:  # Работа от LSI
-            print('work_from_LSI = 1')
         sms_meta_data.from_accel = data_from_buf & 0x001
         sms_meta_data.work_from_LSI = data_from_buf & 0x002
         sms_meta_data.save()
+
+        utctimestamp_int = int(datetime.strptime(sms_meta_data.sms_generation_time, "%Y-%m-%d %H:%M:%S").strftime("%s"))
+        for i in range(22):
+            sms_measured_data = ParsedMeasureData()
+            sms_measured_data.sms = last_sms
+
+            data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 18,
+                                                               146 + (i * (18+7+12)))   # Смещение времени
+            if data_from_buf == 0:
+                break
+            utctimestamp_offset = utctimestamp_int - data_from_buf
+            sms_measured_data.measure_time = datetime.utcfromtimestamp(utctimestamp_offset).strftime('%Y-%m-%d %H:%M:%S')
+
+            data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 7,
+                                                               164 + (i * (18 + 7 + 12)))  # Температура
+            if data_from_buf == 0 or data_from_buf == 0x7F:
+                sms_measured_data.temperature = -40
+            else:
+                sms_measured_data.temperature = (data_from_buf - 40)
+
+            data_from_buf = self.restore_data_from_buf_in_bits(decode_bytes, 12,
+                                                               171 + (i * (18 + 7 + 12)))  # Дальномер
+            sms_measured_data.range = data_from_buf
+            sms_measured_data.save()
+
         return sms_meta_data.pk
 
     @staticmethod
@@ -97,6 +118,9 @@ class AddSMSForm(forms.ModelForm):
         byte_index = int(var_offset // 8)  # Индекс нужного перевого байта в буфере (целая часть от деления)
         bit_offset = int(var_offset % 8)  # Смещение битов от начала байта
         cycles = int(((var_length + bit_offset) / 8) + 1)  # Кол-во циклов для получения полного значения
+
+        if (byte_index + cycles) > 119:
+            cycles -= 1
 
         # Собираем переменную из массива
         temp_data = 0

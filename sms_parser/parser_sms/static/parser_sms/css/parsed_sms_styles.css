@@ -1,4 +1,4 @@
-/* Оформление содержимого СМС */
+/* Оформление содержимого мета данных СМС */
 
 .parsed_sms_content {
   font-family: sans-serif;
@@ -7,10 +7,10 @@
 }
 
 /* Офрмление таблицы с Мета данными */
-
 table.meta_table {
   table-layout: fixed;
-  width: 35%;
+  /*width: 35%;*/
+  /*width: 650px;*/
   border-collapse: collapse;
   border: 3px solid black;
 }
@@ -66,5 +66,119 @@ caption.meta_table {
   color: black;
   text-align: center;
   letter-spacing: 1px;
+}
+
+/* Оформление таблицы с измеренными данными */
+caption.measure_table {
+  font-family: sans-serif, cursive;
+  padding: 10px;
+  font-style: bold;
+  caption-side: top;
+  color: black;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+table.measure_table {
+  table-layout: fixed;
+  /*width: 35%;*/
+  /*width: 650px;*/
+  border-collapse: collapse;
+  border: 3px solid black;
+ /* display: inline-table; /* Размещаем таблицы в линию */
+}
+
+thead.measure_table th:nth-child(1) {
+  width: 45%;
+  padding: 10px;
+  letter-spacing: 1px;
+}
+
+thead.measure_table th:nth-child(2) {
+  width: 30%;
+  padding: 10px;
+  letter-spacing: 1px;
+}
+
+thead.measure_table th:nth-child(3) {
+  width: 30%;
+  padding: 10px;
+  letter-spacing: 1px;
+}
+
+
+thead.measure_table th {
+  letter-spacing: 1px;
+}
+
+tbody.measure_table th {
+  text-align: center;
+  padding: 10px;
+}
+
+tbody.measure_table td {
+  text-align: center;
+  padding: 10px;
+}
+
+thead.measure_table {
+  /*background:;*/
+  color: black;
+  text-shadow: 1px 1px 1px black;
+}
+
+thead.measure_table th {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+  border: 3px solid black;
+}
+
+div.left_meta_data {
+    float: left;
+    display: block;
+    /*margin: 20px;*/
+}
+
+div.left_measure_data {
+    float: left;
+    display: block;
+    /*margin: 20px;*/
+}
+
+div.temp_range_chart {
+    float: left;
+    display: block;
+    /*margin: 20px;*/
+}
+
+img.chart_img {
+    max-width: 1000px;
+    height: 1000px;
+}
+
+/* Оформление карты */
+div.ya_map {
+    float: left;
+    display: block;
+    /*margin: 20px;*/
+}
+
+iframe.ya_map_fr {
+    width: 650px;
+    height: 600px;
+    frameborder: 1;
+    allowfullscreen: true;
+    position:relative;
+}
+
+.grid {
+	width: 100%;
+	border: none;
+	border-collapse: separate;
+	border-spacing: 5px;
+}
+.grid td {
+	width: 33.3%;
+	vertical-align: top;
+	padding: 0;
 }
 

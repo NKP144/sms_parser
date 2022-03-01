@@ -1,3 +1,6 @@
+import io, base64
+
+import numpy as np
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
@@ -5,6 +8,12 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 from .forms import *
+
+import matplotlib
+# matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.dates
+from datetime import datetime
 
 # Create your views here.
 
@@ -37,7 +46,7 @@ class AddSMS(CreateView):
         return context
 
     def form_valid(self, form):     # Метод вызывается до того, как данные будут записаны в БД
-        form.save()
+        form.save() # Сохранили данные в БД
         self.kwargs['pk'] = form.process_sms_data()     # Обработать полученную СМС и вернуть pk метаданных
         # Увстанавливаем pk для получения url в методе get_success_url
         # sms = SMSData.objects.first() #  После изменения сортировки по убыванию времени,
@@ -46,7 +55,8 @@ class AddSMS(CreateView):
         # metadata = ParsedMetaData.objects.get(sms__id='32').pk
         # metadata = ParsedMetaData.objects.get(sms=sms)
         # self.kwargs['pk'] = metadata.pk
-        return super(CreateView, self).form_valid(form)     # Данные в БД записываются после этого вызова
+        return super(CreateView, self).form_valid(form)     # Данные в БД записываются после этого вызова,
+                                                            # если ранее не был вызван метод form.save()
 
     def get_success_url(self):
         # sms = SMSData.objects.last()
@@ -74,8 +84,56 @@ class ShowParsedSMS(DetailView):
         if not self.request.user.is_authenticated:
             user_menu.pop(1)
         context['menu'] = user_menu
+        # Добавить в контекст все данные с измерениями. Данные получаем используя обЪект parsed_sms (модель ParsedMetaData)
+        context['measure_objects'] = context['parsed_sms'].sms.parsedmeasuredata_set.filter(sms_id=context['parsed_sms'].sms.id)
+
+        # Формируем график
+        context['chart'] = self.form_graph_image(context['parsed_sms'].sms.id)
 
         return context
+
+    @staticmethod
+    def form_graph_image(sms_id):
+        measure_data_set = ParsedMeasureData.objects.filter(sms_id=sms_id)
+
+        temparature_list = [measure_data.temperature for measure_data in measure_data_set]
+        range_list = [measure_data.range for measure_data in measure_data_set]
+        dateime_list = [measure_data.measure_time for measure_data in measure_data_set]
+
+        # matplotlib.use('Agg')
+
+        # Преобразовать данные для matplotlib
+        temp_mp = np.array(temparature_list)
+        range_mp = np.array(range_list)
+        xdata_float = matplotlib.dates.date2num(dateime_list)
+
+        fig = plt.figure(figsize=(10, 10))   # Создать фигуру
+        fig.suptitle('Графики изменения температуры и уровня наполнения')
+
+        ax1 = fig.add_subplot(2, 1, 1)      # Добавляем две оси
+        ax2 = fig.add_subplot(2, 1, 2)
+
+        ax1.set_xlabel('Время')
+        ax2.set_xlabel('Время')
+
+        ax1.set_ylabel('Температура, °C')
+        ax2.set_ylabel('Напряжение, мВ')
+
+        ax1.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M\n%y-%m-%d'))
+        ax1.plot_date(xdata_float, temp_mp, 'r-o')
+
+        ax2.bar(xdata_float, range_mp, width=0.025, linewidth=2, edgecolor='r')
+        ax2.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M\n%y-%m-%d'))
+
+        ax1.grid()
+        ax2.grid()
+
+        flike = io.BytesIO()
+        fig.savefig(flike)
+        # plt.savefig('save_fig.png')
+        # plt.savefig(flike)
+        # plt.show()  # Функция нужна чтобы не закрывалось окно с графиком
+        return base64.b64encode(flike.getvalue()).decode()
 
 # ----------------------------------------------------------------------------------------------------------------------
 """ Пытался отобразить объект модели ParsedMetaData по sms_id. Не вышло. При подмене pk_url_kwarg на id нужного 
